@@ -2,7 +2,9 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 
@@ -13,9 +15,12 @@ import java.util.HashMap;
 @TeleOp(name="My Op Mode", group="Iterative Opmode")
 public class MyMainClass extends LinearOpMode {
 
+    private double dcMotorMaxSpeed = 1500.0;
+    private double position = 0.0;
     private DistanceSensor imu;
     private DigitalChannel touchSensor;
     private DcMotorEx []dcMotor = new DcMotorEx[4];
+    private DcMotorEx liftMotor;
     private double motorSpeedX;
     private double motorSpeedY;
     private double motorSpeedX1;
@@ -37,10 +42,16 @@ public class MyMainClass extends LinearOpMode {
         }
     }
 
+    private void initLiftMotor(String motorName){
+        liftMotor = hardwareMap.get(DcMotorEx.class, motorName);
+        liftMotor.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+        liftMotor.setDirection(DcMotorEx.Direction.FORWARD);
+    }
+
     public void steerJoystick(){
         for(int i = 0; i < 2; i++){
-            motorSpeedX = gamepad1.left_stick_x * 2600;
-            motorSpeedY = gamepad1.left_stick_y * 2600;
+            motorSpeedX = gamepad1.left_stick_x * dcMotorMaxSpeed;
+            motorSpeedY = gamepad1.left_stick_y * dcMotorMaxSpeed;
 
             motorSpeedX1 = motorSpeedX;
             motorSpeedY1 = motorSpeedY;
@@ -53,8 +64,8 @@ public class MyMainClass extends LinearOpMode {
                 }
             }
             if(gamepad1.right_bumper){
-                motorSpeedX1 -= 700;
-                motorSpeedX += 700;
+                motorSpeedX1 += 700;
+                motorSpeedX -= 700;
                 if (motorSpeedX > 2600){
                     motorSpeedX = 2600;
                 }
@@ -67,6 +78,16 @@ public class MyMainClass extends LinearOpMode {
             else{
                 dcMotor[i].setVelocity(motorSpeedY1);
                 dcMotor[i+2].setVelocity(-motorSpeedY);
+            }
+
+            if (gamepad1.dpad_up) {
+                liftMotor.setVelocity(1000);
+            }else if (gamepad1.dpad_down)
+            {
+                liftMotor.setVelocity(-1000);
+            }
+            else{
+                liftMotor.setVelocity(0);
             }
 
         }
@@ -109,6 +130,7 @@ public class MyMainClass extends LinearOpMode {
         //initDistanceSensor("distanceTest");
         //initTouchSensor("touchTest");
         initDcMotor("motorTest");
+        initLiftMotor("liftTest");
 
         telemetry.addData("status", "Initialized");
         waitForStart();
