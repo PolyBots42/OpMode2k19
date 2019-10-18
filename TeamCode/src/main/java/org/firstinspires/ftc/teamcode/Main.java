@@ -93,7 +93,7 @@ public class Main extends LinearOpMode {
         telemetry.update();
 
 
-        Thread thread0 = new Thread(new Runnable() {
+        Thread drive_thread = new Thread(new Runnable() {
             @Override
             public void run() {
                 while(true)
@@ -101,7 +101,7 @@ public class Main extends LinearOpMode {
             }
         });
 
-        Thread thread1 = new Thread(new Runnable() {
+        Thread lift_thread = new Thread(new Runnable() {
             @Override
             public void run() {
                 while(true)
@@ -109,15 +109,25 @@ public class Main extends LinearOpMode {
             }
         });
 
-        thread0.start();
-        thread1.start();
+        Thread arm_thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while(true)
+                    arm_servos();
+            }
+        });
 
-        thread0.join();
-        thread1.join();
+        drive_thread.start();
+        lift_thread.start();
+        arm_thread.start();
+
+        drive_thread.join();
+        lift_thread.join();
+        arm_thread.join();
 
         waitForStart();
         while(true){
-            
+
         }
     }
 }
