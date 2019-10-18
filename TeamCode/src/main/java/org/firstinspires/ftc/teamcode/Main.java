@@ -1,3 +1,5 @@
+
+
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -13,12 +15,11 @@ public class Main extends LinearOpMode {
 
     DcMotorEx liftTest;
 
-    private void init_dcmotor(){
+    private void init_dcmotor(String motorName){
         //DC Motors mapping
-        driveMotors[0]=hardwareMap.get(DcMotorEx.class,"motorTest0");
-        driveMotors[1]=hardwareMap.get(DcMotorEx.class,"motorTest1");
-        driveMotors[2]=hardwareMap.get(DcMotorEx.class,"motorTest2");
-        driveMotors[3]=hardwareMap.get(DcMotorEx.class,"motorTest3");
+        for(int i = 0 ; i < 4 ; i++) {
+            driveMotors[i] = hardwareMap.get(DcMotorEx.class, motorName + Integer.toString(i));
+        }
         //Set motors to rotate at set speed
         for (int i=0; i<4;i++){
             driveMotors[i].setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -31,13 +32,17 @@ public class Main extends LinearOpMode {
 
     }
 
-    private void init_lifTest(){
+    private void init_lifTest(String motorName){
         //initializing lift DC motor
-        liftTest = hardwareMap.get(DcMotorEx.class ,"liftTest");
+        liftTest = hardwareMap.get(DcMotorEx.class ,motorName);
         liftTest.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         liftTest.setDirection((DcMotor.Direction.FORWARD));
     }
-    public void steerDriveMotors(){
+
+    private void init_arm_servos(String servoName){
+        // TODO
+    }
+    private void steer_Drive_Motors(){
         //driving the robot
         double speedX;
         double speedY;
@@ -63,7 +68,7 @@ public class Main extends LinearOpMode {
         }
     }
 
-    public void liftMotor(){
+    private void lift_Motor(){
         //controlling the lift
         double liftSpeed = 200.0;
 
@@ -77,39 +82,53 @@ public class Main extends LinearOpMode {
 
     }
 
+    private void arm_servos(){
+        //TODO
+    }
+
+    //main function:
     @Override
     public void runOpMode() throws InterruptedException {
-        init_dcmotor();
-        init_lifTest();
+        init_dcmotor("motorTest");
+        init_lifTest("liftTest");
         telemetry.addData("Status", "initialized");
         telemetry.update();
 
 
-        Thread thread0 = new Thread(new Runnable() {
+        Thread drive_thread = new Thread(new Runnable() {
             @Override
             public void run() {
                 while(true)
-                    steerDriveMotors();
+                    steer_Drive_Motors();
             }
         });
 
-        Thread thread1 = new Thread(new Runnable() {
+        Thread lift_thread = new Thread(new Runnable() {
             @Override
             public void run() {
                 while(true)
-                    liftMotor();
+                    lift_Motor();
             }
         });
 
-        thread0.start();
-        thread1.start();
+        Thread arm_thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while(true)
+                    arm_servos();
+            }
+        });
 
-        thread0.join();
-        thread1.join();
+        drive_thread.start();
+        lift_thread.start();
+        arm_thread.start();
+
+        drive_thread.join();
+        lift_thread.join();
+        arm_thread.join();
 
         waitForStart();
         while(true){
-
 
         }
     }
