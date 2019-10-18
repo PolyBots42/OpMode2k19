@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 
 @TeleOp(name="Test", group="Iterative Opmode")
-public class main extends LinearOpMode {
+public class Main extends LinearOpMode {
     DcMotorEx[] driveMotors = new DcMotorEx[4];
     double maxSpeed = 1000.0;
     double rotationMaxSpeed = 500.0;
