@@ -14,17 +14,15 @@ public class Main extends LinearOpMode {
     DcMotorEx liftTest;
 
     private void init_dcmotor(){
-        //Przypisanie silnikow do portow
+        //DC Motors mapping
         driveMotors[0]=hardwareMap.get(DcMotorEx.class,"motorTest0");
         driveMotors[1]=hardwareMap.get(DcMotorEx.class,"motorTest1");
         driveMotors[2]=hardwareMap.get(DcMotorEx.class,"motorTest2");
         driveMotors[3]=hardwareMap.get(DcMotorEx.class,"motorTest3");
-        //Ustawienie "mode"
+        //Set motors to rotate at set speed
         for (int i=0; i<4;i++){
             driveMotors[i].setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         }
-
-
 
         driveMotors[0].setDirection(DcMotor.Direction.FORWARD);
         driveMotors[1].setDirection(DcMotor.Direction.REVERSE);
@@ -34,11 +32,13 @@ public class Main extends LinearOpMode {
     }
 
     private void init_lifTest(){
+        //initializing lift DC motor
         liftTest = hardwareMap.get(DcMotorEx.class ,"liftTest");
         liftTest.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         liftTest.setDirection((DcMotor.Direction.FORWARD));
     }
     public void steerDriveMotors(){
+        //driving the robot
         double speedX;
         double speedY;
 
@@ -64,6 +64,7 @@ public class Main extends LinearOpMode {
     }
 
     public void liftMotor(){
+        //controlling the lift
         double liftSpeed = 200.0;
 
         if(gamepad1.y){
