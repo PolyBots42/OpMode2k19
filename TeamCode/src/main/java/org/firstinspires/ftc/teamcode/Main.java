@@ -11,7 +11,6 @@ public class Main extends LinearOpMode {
 
     double maxSpeed = 1000.0;
     double rotationMaxSpeed = 500.0;
-
     DcMotorEx[] driveMotors = new DcMotorEx[4];
     DcMotorEx liftTest;
     Servo [] armServo = new Servo[2];
