@@ -147,7 +147,7 @@ public class Main extends LinearOpMode {
                     arm_servos();
             }
         });
-        
+
         drive_thread.start();
         lift_thread.start();
         arm_thread.start();
