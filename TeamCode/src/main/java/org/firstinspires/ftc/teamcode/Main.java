@@ -4,14 +4,17 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.Servo;
 
 @TeleOp(name="Test", group="Iterative Opmode")
 public class Main extends LinearOpMode {
-    DcMotorEx[] driveMotors = new DcMotorEx[4];
+
     double maxSpeed = 1000.0;
     double rotationMaxSpeed = 500.0;
 
+    DcMotorEx[] driveMotors = new DcMotorEx[4];
     DcMotorEx liftTest;
+    Servo [] armServo = new Servo[2];
 
     private void init_dcmotor(String motorName){
         //DC Motors mapping
@@ -38,6 +41,14 @@ public class Main extends LinearOpMode {
     }
 
     private void init_arm_servos(String servoName){
+        //initializing arm servo
+        armServo[0] = hardwareMap.get(Servo.class ,servoName+"0");
+        armServo[0].scaleRange(Servo.MIN_POSITION, Servo.MAX_POSITION);
+        armServo[0].setDirection(Servo.Direction.FORWARD);
+
+        armServo[1] = hardwareMap.get(Servo.class ,servoName+"1");
+        armServo[1].scaleRange(Servo.MIN_POSITION, Servo.MAX_POSITION);
+        armServo[1].setDirection(Servo.Direction.REVERSE);
         // TODO
     }
     private void steer_Drive_Motors(){
@@ -81,6 +92,26 @@ public class Main extends LinearOpMode {
     }
 
     private void arm_servos(){
+        double servoPosition1=armServo[0].getPosition();
+        double servoPosition2=armServo[0].getPosition();
+
+        if(gamepad1.x){
+            while(gamepad1.x) {
+                servoPosition1+=0.05;
+                servoPosition2-=0.05;
+                armServo[0].setPosition(servoPosition2);
+                armServo[0].setPosition(servoPosition2);
+            }
+        }else if(gamepad1.b){
+            while(gamepad1.b) {
+                servoPosition1-=0.05;
+                servoPosition2+=0.05;
+                armServo[0].setPosition(servoPosition2);
+                armServo[0].setPosition(servoPosition2);
+            }
+        }else{
+            armServo[0].setPosition(0.0);
+        }
         //TODO
     }
 
@@ -89,9 +120,9 @@ public class Main extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         init_dcmotor("motorTest");
         init_lifTest("liftTest");
+        init_arm_servos("armServo");
         telemetry.addData("Status", "initialized");
         telemetry.update();
-
 
         Thread drive_thread = new Thread(new Runnable() {
             @Override
@@ -116,6 +147,7 @@ public class Main extends LinearOpMode {
                     arm_servos();
             }
         });
+
 
         drive_thread.start();
         lift_thread.start();
