@@ -48,7 +48,6 @@ public class Main extends LinearOpMode {
         armServo[1] = hardwareMap.get(Servo.class ,servoName+"1");
         armServo[1].scaleRange(Servo.MIN_POSITION, Servo.MAX_POSITION);
         armServo[1].setDirection(Servo.Direction.REVERSE);
-        // TODO
     }
     private void steer_Drive_Motors(){
         //driving the robot
@@ -91,27 +90,30 @@ public class Main extends LinearOpMode {
     }
 
     private void arm_servos(){
-        double servoPosition1=armServo[0].getPosition();
-        double servoPosition2=armServo[0].getPosition();
+        double [] servoPosition = new double[2];
+
+        servoPosition[0] = armServo[0].getPosition();
+        servoPosition[1] = armServo[1].getPosition();
 
         if(gamepad1.x){
             while(gamepad1.x) {
-                servoPosition1+=0.05;
-                servoPosition2-=0.05;
-                armServo[0].setPosition(servoPosition2);
-                armServo[0].setPosition(servoPosition2);
+                servoPosition[0]+=0.05;
+                servoPosition[1]-=0.05;
+
+                armServo[0].setPosition(servoPosition[0]);
+                armServo[1].setPosition(servoPosition[1]);
             }
         }else if(gamepad1.b){
             while(gamepad1.b) {
-                servoPosition1-=0.05;
-                servoPosition2+=0.05;
-                armServo[0].setPosition(servoPosition2);
-                armServo[0].setPosition(servoPosition2);
+                servoPosition[0]-=0.05;
+                servoPosition[1]+=0.05;
+
+                armServo[0].setPosition(servoPosition[0]);
+                armServo[1].setPosition(servoPosition[1]);
             }
         }else{
             armServo[0].setPosition(0.0);
         }
-        //TODO
     }
 
     //main function:
