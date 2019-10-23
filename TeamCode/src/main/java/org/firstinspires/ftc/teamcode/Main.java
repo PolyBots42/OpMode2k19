@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 
 @TeleOp(name="Test", group="Iterative Opmode")
@@ -11,8 +12,10 @@ public class Main extends LinearOpMode {
 
     double maxSpeed = 1000.0;
     double rotationMaxSpeed = 500.0;
+    double accMaxSpeed = 2600.0;
     DcMotorEx[] driveMotors = new DcMotorEx[4];
     DcMotorEx liftTest;
+    DcMotorEx [] acc_motors = new DcMotorEx[2];
     Servo [] armServo = new Servo[2];
 
     private void init_dcmotor(String motorName){
@@ -31,7 +34,6 @@ public class Main extends LinearOpMode {
         driveMotors[3].setDirection(DcMotor.Direction.FORWARD);
 
     }
-
     private void init_lifTest(String motorName){
         //initializing lift DC motor
         liftTest = hardwareMap.get(DcMotorEx.class ,motorName);
@@ -48,6 +50,22 @@ public class Main extends LinearOpMode {
         armServo[1] = hardwareMap.get(Servo.class ,servoName+"1");
         armServo[1].scaleRange(Servo.MIN_POSITION, Servo.MAX_POSITION);
         armServo[1].setDirection(Servo.Direction.REVERSE);
+
+        double servoPosition1=0.0;
+        double servoPosition2=0.0;
+        armServo[0].setPosition(servoPosition1);
+        armServo[1].setPosition(servoPosition2);
+
+    }
+
+    private void init_acc_motors(String motorName){
+        acc_motors[0] = hardwareMap.get(DcMotorEx.class, motorName + "0");
+        acc_motors[0].setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        acc_motors[0].setDirection(DcMotorSimple.Direction.FORWARD);
+
+        acc_motors[1] = hardwareMap.get(DcMotorEx.class, motorName + "1");
+        acc_motors[1].setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        acc_motors[1].setDirection(DcMotorSimple.Direction.REVERSE);
     }
     private void steer_Drive_Motors(){
         //driving the robot
@@ -89,7 +107,7 @@ public class Main extends LinearOpMode {
 
     }
 
-    private void arm_servos(){
+    /*private void arm_servos(){
         double [] servoPosition = new double[2];
 
         servoPosition[0] = armServo[0].getPosition();
@@ -114,14 +132,41 @@ public class Main extends LinearOpMode {
         }else{
             armServo[0].setPosition(0.0);
         }
-    }
+    }*/
 
+    private void acc_motors(){
+        double [] velocities = new double[2];
+
+        if(gamepad1.x){
+            acc_motors[0].setVelocity(accMaxSpeed);
+            acc_motors[1].setVelocity(accMaxSpeed);
+        }
+        else if(gamepad1.b){
+            acc_motors[0].setVelocity(-accMaxSpeed);
+            acc_motors[1].setVelocity(-accMaxSpeed);
+        }
+        else if(gamepad1.dpad_left){
+            acc_motors[0].setVelocity(-accMaxSpeed);
+            acc_motors[1].setVelocity(accMaxSpeed);
+        }
+        else if(gamepad1.dpad_right){
+            acc_motors[0].setVelocity(accMaxSpeed);
+            acc_motors[1].setVelocity(-accMaxSpeed);
+        }
+        else{
+            acc_motors[0].setVelocity(0);
+            acc_motors[1].setVelocity(0);
+        }
+
+    }
     //main function:
     @Override
     public void runOpMode() throws InterruptedException {
         init_dcmotor("motorTest");
         init_lifTest("liftTest");
         init_arm_servos("armServo");
+        init_acc_motors("accMotor");
+
         telemetry.addData("Status", "initialized");
         telemetry.update();
 
@@ -141,21 +186,20 @@ public class Main extends LinearOpMode {
             }
         });
 
-        Thread arm_thread = new Thread(new Runnable() {
+        Thread acc_thread = new Thread(new Runnable() {
             @Override
             public void run() {
-                while(true)
-                    arm_servos();
+                while (true){
+                    acc_motors();
+                }
             }
         });
 
         drive_thread.start();
         lift_thread.start();
-        arm_thread.start();
 
         drive_thread.join();
         lift_thread.join();
-        arm_thread.join();
 
         waitForStart();
         while(true){
