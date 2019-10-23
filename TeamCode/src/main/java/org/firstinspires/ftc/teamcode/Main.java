@@ -7,9 +7,16 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 
+
+
 @TeleOp(name="Test", group="Iterative Opmode")
 public class Main extends LinearOpMode {
 
+    enum DRIVE_DIRECTION{
+        ROTATE_LEFT,
+        ROTATE_RIGHT,
+        STRAIGHT
+    }
     double maxSpeed = 1000.0;
     double rotationMaxSpeed = 500.0;
     double accMaxSpeed = 2600.0;
@@ -18,6 +25,31 @@ public class Main extends LinearOpMode {
     DcMotorEx liftTest;
     DcMotorEx [] acc_motors = new DcMotorEx[2];
     Servo [] armServo = new Servo[2];
+
+    private void drive(double x, double y, DRIVE_DIRECTION direction, double rotSpd)
+    {
+        switch(direction) {
+            case ROTATE_LEFT:
+                driveMotors[0].setVelocity(x - rotSpd);
+                driveMotors[1].setVelocity(y + rotSpd);
+                driveMotors[2].setVelocity(x + rotSpd);
+                driveMotors[3].setVelocity(y - rotSpd);
+                break;
+            case ROTATE_RIGHT:
+                driveMotors[0].setVelocity(x + rotSpd);
+                driveMotors[1].setVelocity(y - rotSpd);
+                driveMotors[2].setVelocity(x - rotSpd);
+                driveMotors[3].setVelocity(y + rotSpd);
+                break;
+
+            case STRAIGHT:
+                driveMotors[0].setVelocity(x);
+                driveMotors[1].setVelocity(y);
+                driveMotors[2].setVelocity(x);
+                driveMotors[3].setVelocity(y);
+                break;
+        }
+    }
 
     private void init_dcmotor(String motorName){
         //DC Motors mapping
@@ -52,8 +84,8 @@ public class Main extends LinearOpMode {
         armServo[1].scaleRange(Servo.MIN_POSITION, Servo.MAX_POSITION);
         armServo[1].setDirection(Servo.Direction.REVERSE);
 
-        double servoPosition1=0.0;
-        double servoPosition2=0.0;
+        double servoPosition1=0.5;
+        double servoPosition2=0.5;
         armServo[0].setPosition(servoPosition1);
         armServo[1].setPosition(servoPosition2);
 
@@ -66,7 +98,7 @@ public class Main extends LinearOpMode {
 
         acc_motors[1] = hardwareMap.get(DcMotorEx.class, motorName + "1");
         acc_motors[1].setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        acc_motors[1].setDirection(DcMotorSimple.Direction.REVERSE);
+        acc_motors[1].setDirection(DcMotorSimple.Direction.FORWARD);
     }
     private void steer_Drive_Motors(){
         //driving the robot
@@ -96,16 +128,15 @@ public class Main extends LinearOpMode {
 
     private void lift_Motor(){
         //controlling the lift
-        double liftSpeed = 200.0;
+        double liftSpeed = 1000.0;
 
         if(gamepad1.y){
             liftTest.setVelocity(liftSpeed);
         }else if(gamepad1.a){
             liftTest.setVelocity(-liftSpeed);
         }else{
-            liftTest.setVelocity(0);
+            liftTest.setVelocity(0.0);
         }
-
     }
 
 
