@@ -13,6 +13,7 @@ public class Main extends LinearOpMode {
     double maxSpeed = 1000.0;
     double rotationMaxSpeed = 500.0;
     double accMaxSpeed = 2600.0;
+
     DcMotorEx[] driveMotors = new DcMotorEx[4];
     DcMotorEx liftTest;
     DcMotorEx [] acc_motors = new DcMotorEx[2];
@@ -107,32 +108,7 @@ public class Main extends LinearOpMode {
 
     }
 
-    /*private void arm_servos(){
-        double [] servoPosition = new double[2];
 
-        servoPosition[0] = armServo[0].getPosition();
-        servoPosition[1] = armServo[1].getPosition();
-
-        if(gamepad1.x){
-            while(gamepad1.x) {
-                servoPosition[0]+=0.05;
-                servoPosition[1]-=0.05;
-
-                armServo[0].setPosition(servoPosition[0]);
-                armServo[1].setPosition(servoPosition[1]);
-            }
-        }else if(gamepad1.b){
-            while(gamepad1.b) {
-                servoPosition[0]-=0.05;
-                servoPosition[1]+=0.05;
-
-                armServo[0].setPosition(servoPosition[0]);
-                armServo[1].setPosition(servoPosition[1]);
-            }
-        }else{
-            armServo[0].setPosition(0.0);
-        }
-    }*/
 
     private void acc_motors(){
         double [] velocities = new double[2];
@@ -197,9 +173,11 @@ public class Main extends LinearOpMode {
 
         drive_thread.start();
         lift_thread.start();
+        acc_thread.start();
 
         drive_thread.join();
         lift_thread.join();
+        acc_thread.join();
 
         waitForStart();
         while(true){
