@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.Servo;
 
+
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
@@ -66,7 +67,7 @@ public class Main extends LinearOpMode {
     }
 
     public void stop_lift(){
-        liftTest.setVelocity(1.0);
+        liftTest.setVelocity(0.0);
     }
 
     public void lift_motion(Lift_motion dir, double speed){
@@ -79,6 +80,10 @@ public class Main extends LinearOpMode {
                 liftTest.setVelocity(-speed);
                 break;
         }
+    }
+
+    public void set_lift_position(int position){
+        liftTest.setTargetPosition(position);
     }
 
     private void init_dcmotor(String motorName){
@@ -100,7 +105,7 @@ public class Main extends LinearOpMode {
     private void init_lifTest(String motorName){
         //initializing lift DC motor
         liftTest = hardwareMap.get(DcMotorEx.class ,motorName);
-        liftTest.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        liftTest.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         liftTest.setDirection((DcMotor.Direction.FORWARD));
     }
 
@@ -150,14 +155,19 @@ public class Main extends LinearOpMode {
 
     private void lift_Motor(){
         //controlling the lift
+        boolean position=false;
 
 
         if(gamepad1.y){
-            lift_motion(Lift_motion.UP, 1000.0);
+            position=true; //true-up, false-down
         }else if(gamepad1.a){
-            lift_motion(Lift_motion.DOWN, 1000.0);
-        }else{
-            stop_lift();
+            position=false;
+        }
+
+        if (position==true){
+            set_lift_position(100);
+        } else{
+            set_lift_position(0);
         }
     }
 
