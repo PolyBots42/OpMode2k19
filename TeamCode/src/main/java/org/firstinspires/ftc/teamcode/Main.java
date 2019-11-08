@@ -5,8 +5,11 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.Servo;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 
 @TeleOp(name="Test", group="Iterative Opmode")
@@ -35,7 +38,7 @@ public class Main extends LinearOpMode {
     DcMotorEx liftTest;
     DcMotorEx [] acc_motors = new DcMotorEx[2];
     Servo [] armServo = new Servo[2];
-
+    DistanceSensor distSensor;
     private void drive(double x, double y, Drive_direction direction, double rotSpd)
     {
         switch(direction) {
@@ -116,6 +119,12 @@ public class Main extends LinearOpMode {
 
     }
 
+    private void init_distance_sensor(String sensorName){
+        distSensor = hardwareMap.get(DistanceSensor.class, sensorName);
+        telemetry.addData("Distance Sensor: ", "Distance Sensor initialize successfully.");
+        telemetry.update();
+    }
+
     private void init_acc_motors(String motorName){
         acc_motors[0] = hardwareMap.get(DcMotorEx.class, motorName + "0");
         acc_motors[0].setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -179,6 +188,12 @@ public class Main extends LinearOpMode {
         }
 
     }
+
+    private void show_distance()
+    {
+        telemetry.addData("Distance: ", distSensor.getDistance(DistanceUnit.CM));
+        telemetry.update();
+    }
     //main function:
     @Override
     public void runOpMode() throws InterruptedException {
@@ -186,7 +201,7 @@ public class Main extends LinearOpMode {
         init_lifTest("liftTest");
         init_arm_servos("armServo", 1.0, 1.0);
         init_acc_motors("accMotor");
-
+        init_distance_sensor("distanceTest");
         telemetry.addData("Status", "initialized");
         telemetry.update();
 
@@ -215,13 +230,24 @@ public class Main extends LinearOpMode {
             }
         });
 
+        Thread distance_thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while (true){
+                    show_distance();
+                }
+            }
+        });
+
         drive_thread.start();
         lift_thread.start();
         acc_thread.start();
+        distance_thread.start();
 
         drive_thread.join();
         lift_thread.join();
         acc_thread.join();
+        distance_thread.join();
 
         waitForStart();
         while(true){
