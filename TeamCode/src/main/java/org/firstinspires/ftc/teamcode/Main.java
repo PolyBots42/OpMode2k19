@@ -33,10 +33,12 @@ public class Main extends LinearOpMode {
         RIGHT_MOVE
     }
     double maxSpeed = 1000.0;
+    double turboSpeed = 2600.0;
     double rotationMaxSpeed = 500.0;
     double accMaxSpeed = 2600.0;
     int position = 0;
     boolean flag = false;
+    boolean flag2 = false;
 
     DcMotorEx[] driveMotors = new DcMotorEx[4];
     DcMotorEx liftTest;
@@ -165,8 +167,17 @@ public class Main extends LinearOpMode {
     }
     private void steer_Drive_Motors(){
         //driving the robot
-        double speedX = gamepad1.left_stick_x * maxSpeed;
-        double speedY = gamepad1.left_stick_y * maxSpeed;
+        double speedX;
+        double speedY;
+
+        if(gamepad1.start){
+            speedX = gamepad1.left_stick_x * turboSpeed;
+            speedY = gamepad1.left_stick_y * turboSpeed;
+        }
+        else {
+            speedX = gamepad1.left_stick_x * maxSpeed;
+            speedY = gamepad1.left_stick_y * maxSpeed;
+        }
 
         if(gamepad1.right_bumper) {
             drive(speedX, speedY, Drive_direction.ROTATE_RIGHT,rotationMaxSpeed);
@@ -188,6 +199,17 @@ public class Main extends LinearOpMode {
         else{
             flag = false;
         }
+
+        if(gamepad1.a){
+            if(!flag2){
+                position-=100;
+                flag2=true;
+            }
+        }
+        else{
+            flag2=false;
+        }
+
         set_lift_position(position,1.0);
     }
 
