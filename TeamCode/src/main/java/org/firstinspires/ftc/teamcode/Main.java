@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
+import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.Servo;
 
 
@@ -34,6 +35,8 @@ public class Main extends LinearOpMode {
     double maxSpeed = 1000.0;
     double rotationMaxSpeed = 500.0;
     double accMaxSpeed = 2600.0;
+    int position = 0;
+    boolean flag = false;
 
     DcMotorEx[] driveMotors = new DcMotorEx[4];
     DcMotorEx liftTest;
@@ -55,6 +58,25 @@ public class Main extends LinearOpMode {
                 driveMotors[2].setVelocity(x - rotSpd);
                 driveMotors[3].setVelocity(y + rotSpd);
                 break;
+        }
+    }
+
+    public void testSth(DcMotorEx motor, double vel){
+        motor.setVelocity(vel);
+
+    }
+
+    public boolean isClicked(Gamepad gmpd){
+        if (gmpd.y){
+            if(!flag){
+                flag = true;
+                return true;
+            } else{
+                return false;
+            }
+        }else{
+            flag = false;
+            return false;
         }
     }
 
@@ -82,8 +104,9 @@ public class Main extends LinearOpMode {
         }
     }
 
-    public void set_lift_position(int position){
+    public void set_lift_position(int position,double power){
         liftTest.setTargetPosition(position);
+        liftTest.setPower(power);
     }
 
     private void init_dcmotor(String motorName){
@@ -105,8 +128,9 @@ public class Main extends LinearOpMode {
     private void init_lifTest(String motorName){
         //initializing lift DC motor
         liftTest = hardwareMap.get(DcMotorEx.class ,motorName);
+        liftTest.setTargetPosition(0);
         liftTest.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        liftTest.setDirection((DcMotor.Direction.FORWARD));
+
     }
 
     private void init_arm_servos(String servoName, double init_pos_left, double init_pos_right){
@@ -155,28 +179,35 @@ public class Main extends LinearOpMode {
 
     private void lift_Motor(){
         //controlling the lift
-        boolean position=false;
-
-
-        if(gamepad1.y){
-            position=true; //true-up, false-down
-        }else if(gamepad1.a){
-            position=false;
+        if (gamepad1.y){
+            if(!flag){
+                position+=100;
+                flag = true;
+            }
         }
-
-        if (position==true){
-            set_lift_position(100);
-        } else{
-            set_lift_position(0);
+        else{
+            flag = false;
         }
+        set_lift_position(position,1.0);
     }
 
 
 
     private void acc_motors(){
-        double [] velocities = new double[2];
+      /*  double [] velocities = new double[2];
+
 
         if(gamepad1.x){
+            testSth(acc_motors[0],500.0);
+        }
+        else if(gamepad1.y){
+            testSth(acc_motors[0], -500.0);
+        }
+        else{
+            acc_motors[0].setVelocity(0.0);
+        }
+
+        /*if(gamepad1.x){
             acc_motors[0].setVelocity(accMaxSpeed);
             acc_motors[1].setVelocity(accMaxSpeed);
         }
@@ -195,7 +226,7 @@ public class Main extends LinearOpMode {
         else{
             acc_motors[0].setVelocity(0);
             acc_motors[1].setVelocity(0);
-        }
+        }*/
 
     }
 
