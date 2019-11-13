@@ -189,7 +189,6 @@ public class Main extends LinearOpMode {
             drive(speedX, speedY);
         }
     }
-
     private void lift_Motor(){
         //controlling the lift
         if (gamepad1.y){
