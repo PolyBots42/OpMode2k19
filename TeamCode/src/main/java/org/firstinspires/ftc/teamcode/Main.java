@@ -47,8 +47,7 @@ public class Main extends LinearOpMode {
     DcMotorEx [] acc_motors = new DcMotorEx[2];
     Servo [] armServo = new Servo[2];
     DistanceSensor distSensor;
-    private void drive(double x, double y, Drive_direction direction, double rotSpd)
-    {
+    private void drive(double x, double y, Drive_direction direction, double rotSpd){
         switch(direction) {
             case ROTATE_LEFT:
                 driveMotors[0].setVelocity(x - rotSpd);
