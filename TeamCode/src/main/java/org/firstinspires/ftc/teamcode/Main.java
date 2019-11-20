@@ -29,6 +29,7 @@ public class Main extends LinearOpMode {
     double maxSpeed = 1000.0;
     double turboSpeed = 2600.0;
     double rotationMaxSpeed = 500.0;
+    double liftSpeed = 500.0;
     int position = 0;
     boolean flag = false;
     boolean flag2 = false;
@@ -169,13 +170,13 @@ public class Main extends LinearOpMode {
             drive(speedX, speedY);
         }
     }
-    private void lift_Motor(){
+    private void lift_Motor(double speed){
         //controlling the lift
         if (gamepad1.y){
-            liftMotor.setVelocity(1000);
+            liftMotor.setVelocity(speed);
         }
         else if(gamepad1.a){
-            liftMotor.setVelocity(-1000);
+            liftMotor.setVelocity(-speed);
         }
         else{
             liftMotor.setVelocity(0);
@@ -211,7 +212,7 @@ public class Main extends LinearOpMode {
             @Override
             public void run() {
                 while(true)
-                    lift_Motor();
+                    lift_Motor(liftSpeed);
             }
         });
 
