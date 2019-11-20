@@ -43,7 +43,7 @@ public class Main extends LinearOpMode {
     int minH = 0;
 
     DcMotorEx[] driveMotors = new DcMotorEx[4];
-    DcMotorEx liftTest;
+    DcMotorEx liftMotor;
     DcMotorEx [] acc_motors = new DcMotorEx[2];
     Servo [] armServo = new Servo[2];
     DistanceSensor distSensor;
@@ -92,24 +92,24 @@ public class Main extends LinearOpMode {
     }
 
     public void stop_lift(){
-        liftTest.setVelocity(0.0);
+        liftMotor.setVelocity(0.0);
     }
 
     public void lift_motion(Lift_motion dir, double speed){
         switch(dir) {
             case UP:
-                liftTest.setVelocity(speed);
+                liftMotor.setVelocity(speed);
                 break;
 
             case DOWN:
-                liftTest.setVelocity(-speed);
+                liftMotor.setVelocity(-speed);
                 break;
         }
     }
 
     public void set_lift_position(int position,double power){
-        liftTest.setTargetPosition(position);
-        liftTest.setPower(power);
+        liftMotor.setTargetPosition(position);
+        liftMotor.setPower(power);
     }
 
     private void init_dcmotor(String motorName){
@@ -128,11 +128,11 @@ public class Main extends LinearOpMode {
         driveMotors[3].setDirection(DcMotor.Direction.FORWARD);
 
     }
-    private void init_lifTest(String motorName){
+    private void init_liftMotor(String motorName){
         //initializing lift DC motor
-        liftTest = hardwareMap.get(DcMotorEx.class ,motorName);
-        liftTest.setTargetPosition(0);
-        liftTest.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        liftMotor = hardwareMap.get(DcMotorEx.class ,motorName);
+        liftMotor.setTargetPosition(0);
+        liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
     }
 
@@ -261,7 +261,7 @@ public class Main extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
         init_dcmotor("motorTest");
-        init_lifTest("liftTest");
+        init_liftMotor("liftMotor");
         init_arm_servos("armServo", 1.0, 1.0);
         init_acc_motors("accMotor");
         init_distance_sensor("distanceTest");
