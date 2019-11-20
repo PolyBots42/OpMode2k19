@@ -32,8 +32,6 @@ public class Main extends LinearOpMode {
     int position = 0;
     boolean flag = false;
     boolean flag2 = false;
-    int maxH = 1000;
-    int minH = 0;
 
     DcMotorEx[] driveMotors = new DcMotorEx[4];
     DcMotorEx liftMotor;
@@ -182,27 +180,7 @@ public class Main extends LinearOpMode {
         else{
             liftMotor.setVelocity(0);
         }
-        /*if (gamepad1.y){
-            if(!flag && position < maxH){
-                position+=100;
-                flag = true;
-            }
-        }
-        else{
-            flag = false;
-        }
 
-        if(gamepad1.a){
-            if(!flag2 && position > minH){
-                position-=100;
-                flag2=true;
-            }
-        }
-        else{
-            flag2=false;
-        }
-
-        set_lift_position(position,1.0);*/
     }
 
 
