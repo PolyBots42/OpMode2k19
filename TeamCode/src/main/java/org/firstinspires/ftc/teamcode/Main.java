@@ -26,16 +26,9 @@ public class Main extends LinearOpMode {
         UP,
         DOWN,
     }
-    enum Accurator_mode{
-        EXTEND,
-        RETRACT,
-        LEFT_MOVE,
-        RIGHT_MOVE
-    }
     double maxSpeed = 1000.0;
     double turboSpeed = 2600.0;
     double rotationMaxSpeed = 500.0;
-    double accMaxSpeed = 2600.0;
     int position = 0;
     boolean flag = false;
     boolean flag2 = false;
@@ -44,7 +37,6 @@ public class Main extends LinearOpMode {
 
     DcMotorEx[] driveMotors = new DcMotorEx[4];
     DcMotorEx liftMotor;
-    DcMotorEx [] acc_motors = new DcMotorEx[2];
     Servo [] armServo = new Servo[2];
     DistanceSensor distSensor;
     private void drive(double x, double y, Drive_direction direction, double rotSpd){
@@ -132,7 +124,7 @@ public class Main extends LinearOpMode {
         //initializing lift DC motor
         liftMotor = hardwareMap.get(DcMotorEx.class ,motorName);
         liftMotor.setTargetPosition(0);
-        liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        liftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
     }
 
@@ -157,15 +149,6 @@ public class Main extends LinearOpMode {
         telemetry.update();
     }
 
-    private void init_acc_motors(String motorName){
-        acc_motors[0] = hardwareMap.get(DcMotorEx.class, motorName + "0");
-        acc_motors[0].setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        acc_motors[0].setDirection(DcMotorSimple.Direction.FORWARD);
-
-        acc_motors[1] = hardwareMap.get(DcMotorEx.class, motorName + "1");
-        acc_motors[1].setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        acc_motors[1].setDirection(DcMotorSimple.Direction.FORWARD);
-    }
     private void steer_Drive_Motors(){
         //driving the robot
         double speedX;
@@ -191,6 +174,15 @@ public class Main extends LinearOpMode {
     private void lift_Motor(){
         //controlling the lift
         if (gamepad1.y){
+            liftMotor.setVelocity(1000);
+        }
+        else if(gamepad1.a){
+            liftMotor.setVelocity(-1000);
+        }
+        else{
+            liftMotor.setVelocity(0);
+        }
+        /*if (gamepad1.y){
             if(!flag && position < maxH){
                 position+=100;
                 flag = true;
@@ -210,47 +202,9 @@ public class Main extends LinearOpMode {
             flag2=false;
         }
 
-        set_lift_position(position,1.0);
+        set_lift_position(position,1.0);*/
     }
 
-
-
-    private void acc_motors(){
-      /*  double [] velocities = new double[2];
-
-
-        if(gamepad1.x){
-            testSth(acc_motors[0],500.0);
-        }
-        else if(gamepad1.y){
-            testSth(acc_motors[0], -500.0);
-        }
-        else{
-            acc_motors[0].setVelocity(0.0);
-        }
-
-        /*if(gamepad1.x){
-            acc_motors[0].setVelocity(accMaxSpeed);
-            acc_motors[1].setVelocity(accMaxSpeed);
-        }
-        else if(gamepad1.b){
-            acc_motors[0].setVelocity(-accMaxSpeed);
-            acc_motors[1].setVelocity(-accMaxSpeed);
-        }
-        else if(gamepad1.dpad_left){
-            acc_motors[0].setVelocity(-accMaxSpeed);
-            acc_motors[1].setVelocity(accMaxSpeed);
-        }
-        else if(gamepad1.dpad_right){
-            acc_motors[0].setVelocity(accMaxSpeed);
-            acc_motors[1].setVelocity(-accMaxSpeed);
-        }
-        else{
-            acc_motors[0].setVelocity(0);
-            acc_motors[1].setVelocity(0);
-        }*/
-
-    }
 
     private void show_distance()
     {
@@ -263,7 +217,6 @@ public class Main extends LinearOpMode {
         init_dcmotor("motorTest");
         init_liftMotor("liftMotor");
         init_arm_servos("armServo", 1.0, 1.0);
-        init_acc_motors("accMotor");
         init_distance_sensor("distanceTest");
         telemetry.addData("Status", "initialized");
         telemetry.update();
@@ -284,15 +237,6 @@ public class Main extends LinearOpMode {
             }
         });
 
-        Thread acc_thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                while (true){
-                    acc_motors();
-                }
-            }
-        });
-
         Thread distance_thread = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -304,12 +248,10 @@ public class Main extends LinearOpMode {
 
         drive_thread.start();
         lift_thread.start();
-        acc_thread.start();
         distance_thread.start();
 
         drive_thread.join();
         lift_thread.join();
-        acc_thread.join();
         distance_thread.join();
 
         waitForStart();
