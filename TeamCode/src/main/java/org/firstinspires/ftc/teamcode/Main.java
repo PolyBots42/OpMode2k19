@@ -5,13 +5,20 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
-import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 @TeleOp(name="Test", group="Iterative Opmode")
 public class Main extends LinearOpMode {
+
+    double maxSpeed = 1000.0;
+    double turboSpeed = 2600.0;
+    double rotationMaxSpeed = 500.0;
+    double liftSpeed = 500.0;
+    int position = 0;
+    boolean flag = false;
+    boolean flag2 = false;
 
     enum Drive_direction{
         ROTATE_LEFT,
@@ -22,94 +29,14 @@ public class Main extends LinearOpMode {
         UP,
         DOWN,
     }
-    double maxSpeed = 1000.0;
-    double turboSpeed = 2600.0;
-    double rotationMaxSpeed = 500.0;
-    double liftSpeed = 500.0;
-    int position = 0;
-    boolean flag = false;
-    boolean flag2 = false;
 
     DcMotorEx[] driveMotors = new DcMotorEx[4];
     DcMotorEx liftMotor;
     Servo [] armServo = new Servo[2];
     DistanceSensor distSensor;
-    private void drive(double x, double y, Drive_direction direction, double rotSpd){
-        switch(direction) {
-            case ROTATE_LEFT:
-                driveMotors[0].setVelocity(x - rotSpd);
-                driveMotors[1].setVelocity(y + rotSpd);
-                driveMotors[2].setVelocity(x + rotSpd);
-                driveMotors[3].setVelocity(y - rotSpd);
-                break;
-            case ROTATE_RIGHT:
-                driveMotors[0].setVelocity(x + rotSpd);
-                driveMotors[1].setVelocity(y - rotSpd);
-                driveMotors[2].setVelocity(x - rotSpd);
-                driveMotors[3].setVelocity(y + rotSpd);
-                break;
-        }
-    }
 
-    public void testSth(DcMotorEx motor, double vel){
-        motor.setVelocity(vel);
 
-    }
-
-    public boolean isClicked(Gamepad gmpd){
-        if (gmpd.y){
-            if(!flag){
-                flag = true;
-                return true;
-            } else{
-                return false;
-            }
-        }else{
-            flag = false;
-            return false;
-        }
-    }
-
-    private void drive(double x, double y)
-    {
-        driveMotors[0].setVelocity(x);
-        driveMotors[1].setVelocity(y);
-        driveMotors[2].setVelocity(x);
-        driveMotors[3].setVelocity(y);
-    }
-
-    public void lift_motion(Lift_motion dir, double speed){
-        switch(dir) {
-            case UP:
-                liftMotor.setVelocity(speed);
-                break;
-
-            case DOWN:
-                liftMotor.setVelocity(-speed);
-                break;
-        }
-    }
-
-    public void set_lift_position(int position,double power){
-        liftMotor.setTargetPosition(position);
-        liftMotor.setPower(power);
-    }
-
-    public void hold_motor(DcMotorEx motor){
-        DcMotor.RunMode mode = motor.getMode();
-
-        switch (mode){
-            case RUN_USING_ENCODER:
-                motor.setVelocity(0.0);
-                motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-                break;
-            case RUN_TO_POSITION:
-                motor.setTargetPosition(motor.getCurrentPosition());
-                motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-                break;
-        }
-    }
-
+    /* inits */
     private void init_dcmotor(String motorName){
         //DC Motors mapping
         for(int i = 0 ; i < 4 ; i++) {
@@ -155,6 +82,73 @@ public class Main extends LinearOpMode {
         telemetry.update();
     }
 
+    private void drive(double x, double y, Drive_direction direction, double rotSpd){
+        switch(direction) {
+            case ROTATE_LEFT:
+                driveMotors[0].setVelocity(x - rotSpd);
+                driveMotors[1].setVelocity(y + rotSpd);
+                driveMotors[2].setVelocity(x + rotSpd);
+                driveMotors[3].setVelocity(y - rotSpd);
+                break;
+            case ROTATE_RIGHT:
+                driveMotors[0].setVelocity(x + rotSpd);
+                driveMotors[1].setVelocity(y - rotSpd);
+                driveMotors[2].setVelocity(x - rotSpd);
+                driveMotors[3].setVelocity(y + rotSpd);
+                break;
+        }
+    }
+
+
+    private void drive(double x, double y)
+    {
+        driveMotors[0].setVelocity(x);
+        driveMotors[1].setVelocity(y);
+        driveMotors[2].setVelocity(x);
+        driveMotors[3].setVelocity(y);
+    }
+
+    /*for debugging*/
+    private void testSth(DcMotorEx motor, double vel){
+        motor.setVelocity(vel);
+    }
+
+    /* motors methods*/
+
+    private void lift_motion(Lift_motion dir, double speed){
+        switch(dir) {
+            case UP:
+                liftMotor.setVelocity(speed);
+                break;
+
+            case DOWN:
+                liftMotor.setVelocity(-speed);
+                break;
+        }
+    }
+
+    private void hold_motor(DcMotorEx motor){
+        DcMotor.RunMode mode = motor.getMode();
+
+        switch (mode){
+            case RUN_USING_ENCODER:
+                motor.setVelocity(0.0);
+                motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+                break;
+            case RUN_TO_POSITION:
+                motor.setTargetPosition(motor.getCurrentPosition());
+                motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+                break;
+        }
+    }
+
+    private void set_lift_position(int position,double power){
+        liftMotor.setTargetPosition(position);
+        liftMotor.setPower(power);
+    }
+
+    /* steering */
+
     private void steer_Drive_Motors(){
         //driving the robot
         double speedX;
@@ -190,13 +184,13 @@ public class Main extends LinearOpMode {
         }
 
     }
-
-
+    /* Sensors */
     private void show_distance()
     {
         telemetry.addData("Distance: ", distSensor.getDistance(DistanceUnit.CM));
         telemetry.update();
     }
+
     //main function:
     @Override
     public void runOpMode() throws InterruptedException {
