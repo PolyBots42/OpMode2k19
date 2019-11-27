@@ -78,10 +78,6 @@ public class Main extends LinearOpMode {
         driveMotors[3].setVelocity(y);
     }
 
-    public void stop_lift(){
-        liftMotor.setVelocity(0.0);
-    }
-
     public void lift_motion(Lift_motion dir, double speed){
         switch(dir) {
             case UP:
@@ -97,6 +93,21 @@ public class Main extends LinearOpMode {
     public void set_lift_position(int position,double power){
         liftMotor.setTargetPosition(position);
         liftMotor.setPower(power);
+    }
+
+    public void hold_motor(DcMotorEx motor){
+        DcMotor.RunMode mode = motor.getMode();
+
+        switch (mode){
+            case RUN_USING_ENCODER:
+                motor.setVelocity(0.0);
+                motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+                break;
+            case RUN_TO_POSITION:
+                motor.setTargetPosition(motor.getCurrentPosition());
+                motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+                break;
+        }
     }
 
     private void init_dcmotor(String motorName){
@@ -169,13 +180,13 @@ public class Main extends LinearOpMode {
     private void lift_Motor(double speed){
         //controlling the lift
         if (gamepad1.y){
-            liftMotor.setVelocity(speed);
+            lift_motion(Lift_motion.UP,speed);
         }
         else if(gamepad1.a){
-            liftMotor.setVelocity(-speed);
+            lift_motion(Lift_motion.DOWN, speed);
         }
         else{
-            liftMotor.setVelocity(0);
+            hold_motor(liftMotor);
         }
 
     }
