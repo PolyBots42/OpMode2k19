@@ -131,6 +131,7 @@ public class Main extends LinearOpMode {
         liftMotor = hardwareMap.get(DcMotorEx.class ,motorName);
         liftMotor.setTargetPosition(0);
         liftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
     }
 
     private void init_arm_servos(String servoName, double init_pos_left, double init_pos_right){
