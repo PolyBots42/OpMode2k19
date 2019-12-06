@@ -1,6 +1,6 @@
 // @version 1.0
 /*
-* @authors: Wojciech Boncela, Lukasz Gapiński, Mateusz Gapiński, Marceli Antosik, Jan Milczarek, Julka Sysdół, Witold Kardas
+* @authors: Wojciech Boncela, Lukasz Gapiński, Mateusz Gapiński, Marceli Antosik, Jan Milczarek, Julia Sysdół, Witold Kardas
 *
 *
 * */
