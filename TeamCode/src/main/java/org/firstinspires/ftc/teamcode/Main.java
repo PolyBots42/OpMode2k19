@@ -12,7 +12,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 @TeleOp(name="Test", group="Iterative Opmode")
 public class Main extends LinearOpMode {
-    
+
     enum Drive_direction{
         ROTATE_LEFT,
         ROTATE_RIGHT,
