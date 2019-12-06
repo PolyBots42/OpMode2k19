@@ -22,6 +22,7 @@ public class Main extends LinearOpMode {
         UP,
         DOWN,
     }
+    
     double maxSpeed = 1000.0;
     double turboSpeed = 2600.0;
     double rotationMaxSpeed = 500.0;
