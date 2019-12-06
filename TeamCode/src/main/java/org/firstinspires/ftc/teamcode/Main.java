@@ -1,9 +1,9 @@
-// @version 1.0
+// @version 1.1
 /*
-* @authors: Wojciech Boncela, Lukasz Gapiński, Mateusz Gapiński, Marceli Antosik, Jan Milczarek, Julia Sysdół, Witold Kardas
-*
-*
-* */
+ * @authors: Wojciech Boncela, Lukasz Gapiński, Mateusz Gapiński, Marceli Antosik, Jan Milczarek, Julia Sysdół, Witold Kardas
+ *
+ *
+ * */
 
 package org.firstinspires.ftc.teamcode;
 
@@ -33,7 +33,7 @@ public class Main extends LinearOpMode {
     double maxSpeed = 1000.0;
     double turboSpeed = 2600.0;
     double rotationMaxSpeed = 500.0;
-    double liftSpeed = 500.0;
+    double liftSpeed = 800.0;
     int position = 0;
     boolean flag = false;
     boolean flag2 = false;
@@ -199,7 +199,16 @@ public class Main extends LinearOpMode {
 
     }
 
-
+    private void armServos(){
+        if(gamepad1.b){
+            armServo[0].setPosition(0.0);
+            armServo[1].setPosition(0.0);
+        }
+        else if(gamepad1.x){
+            armServo[0].setPosition(1.0);
+            armServo[1].setPosition(1.0);
+        }
+    }
     private void show_distance()
     {
         telemetry.addData("Distance: ", distSensor.getDistance(DistanceUnit.CM));
@@ -240,13 +249,24 @@ public class Main extends LinearOpMode {
             }
         });
 
+        Thread servo_thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while (true){
+                    armServos();
+                }
+            }
+        });
+
         drive_thread.start();
         lift_thread.start();
         distance_thread.start();
+        servo_thread.start();
 
         drive_thread.join();
         lift_thread.join();
         distance_thread.join();
+        servo_thread.join();
 
         waitForStart();
         while(true){
