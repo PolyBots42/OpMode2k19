@@ -1,3 +1,10 @@
+// @version 1.0
+/*
+* @authors: Wojciech Boncela, Lukasz Gapiński, Mateusz Gapiński, Marceli Antosik, Jan Milczarek, Julka Sysdół, Witold Kardas
+*
+*
+* */
+
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -22,7 +29,7 @@ public class Main extends LinearOpMode {
         UP,
         DOWN,
     }
-    
+
     double maxSpeed = 1000.0;
     double turboSpeed = 2600.0;
     double rotationMaxSpeed = 500.0;
