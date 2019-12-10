@@ -5,6 +5,17 @@
  *
  * */
 
+
+/*
+    Motors:
+
+    0 - Front
+    1 - Left
+    2 - Read
+    3 - Right
+
+ */
+
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
