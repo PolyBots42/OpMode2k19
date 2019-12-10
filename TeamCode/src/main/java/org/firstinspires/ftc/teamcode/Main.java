@@ -154,7 +154,6 @@ public class Main extends LinearOpMode {
 
         armServo[0].setPosition(init_pos_left);
         armServo[1].setPosition(init_pos_right);
-
     }
 
     private void init_distance_sensor(String sensorName){
