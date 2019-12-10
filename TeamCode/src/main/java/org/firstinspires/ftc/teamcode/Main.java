@@ -3,10 +3,8 @@
  * @authors: Wojciech Boncela, Lukasz Gapiński, Mateusz Gapiński, Marceli Antosik, Jan Milczarek, Julia Sysdół, Witold Kardas
  *
  *
- * */
-
-
-/*
+ *
+ *
     Motors:
 
     0 - Front
