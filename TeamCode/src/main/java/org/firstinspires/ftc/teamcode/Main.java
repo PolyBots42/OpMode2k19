@@ -42,7 +42,7 @@ public class Main extends LinearOpMode {
     double maxSpeed = 1000.0;
     double turboSpeed = 2600.0;
     double rotationMaxSpeed = 500.0;
-    double liftSpeed = 800.0;
+    double liftSpeed = 1200.0;
     int position = 0;
     boolean flag = false;
     boolean flag2 = false;
