@@ -51,7 +51,7 @@ public class Main extends LinearOpMode {
     DcMotorEx liftMotor;
     Servo [] armServo = new Servo[2];
     DistanceSensor distSensor;
-    
+
     private void drive(double x, double y, Drive_direction direction, double rotSpd){
         switch(direction) {
             case ROTATE_LEFT:
@@ -147,7 +147,6 @@ public class Main extends LinearOpMode {
     private void init_liftMotor(String motorName){
         //initializing lift DC motor
         liftMotor = hardwareMap.get(DcMotorEx.class ,motorName);
-        liftMotor.setTargetPosition(0);
         liftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
     }
