@@ -1,4 +1,4 @@
-// @version 1.1
+// @version 1.2
 /*
  * @authors: Wojciech Boncela, Lukasz Gapiński, Mateusz Gapiński, Marceli Antosik, Jan Milczarek, Julia Sysdół, Witold Kardas
  *
@@ -7,10 +7,8 @@
  *
     Motors:
 
-    0 - Front
-    1 - Left
-    2 - Read
-    3 - Right
+    0 - left
+    1 - right
 
  */
 
@@ -34,6 +32,7 @@ public class Main extends LinearOpMode {
         ROTATE_RIGHT,
         STRAIGHT
     }
+
     enum Lift_motion{
         UP,
         DOWN,
@@ -47,24 +46,20 @@ public class Main extends LinearOpMode {
     boolean flag = false;
     boolean flag2 = false;
 
-    DcMotorEx[] driveMotors = new DcMotorEx[4];
+    DcMotorEx[] driveMotors = new DcMotorEx[2];
     DcMotorEx liftMotor;
     Servo [] armServo = new Servo[2];
     DistanceSensor distSensor;
 
-    private void drive(double x, double y, Drive_direction direction, double rotSpd){
-        switch(direction) {
-            case ROTATE_LEFT:
-                driveMotors[0].setVelocity(x - rotSpd);
-                driveMotors[1].setVelocity(y + rotSpd);
-                driveMotors[2].setVelocity(x + rotSpd);
-                driveMotors[3].setVelocity(y - rotSpd);
-                break;
+    private void drive(double s, Drive_direction direction, double rotSpd){
+        switch (direction){
             case ROTATE_RIGHT:
-                driveMotors[0].setVelocity(x + rotSpd);
-                driveMotors[1].setVelocity(y - rotSpd);
-                driveMotors[2].setVelocity(x - rotSpd);
-                driveMotors[3].setVelocity(y + rotSpd);
+                driveMotors[0].setVelocity(s - rotSpd);
+                driveMotors[1].setVelocity(s + rotSpd);
+                break;
+            case ROTATE_LEFT:
+                driveMotors[0].setVelocity(s + rotSpd);
+                driveMotors[1].setVelocity(s - rotSpd);
                 break;
         }
     }
@@ -130,18 +125,16 @@ public class Main extends LinearOpMode {
 
     private void init_dcmotor(String motorName){
         //DC Motors mapping
-        for(int i = 0 ; i < 4 ; i++) {
+        for(int i = 0 ; i < 2 ; i++) {
             driveMotors[i] = hardwareMap.get(DcMotorEx.class, motorName + Integer.toString(i));
         }
         //Set motors to rotate at set speed
-        for (int i=0; i<4;i++){
+        for (int i=0; i<2;i++){
             driveMotors[i].setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         }
 
-        driveMotors[0].setDirection(DcMotor.Direction.FORWARD);
-        driveMotors[1].setDirection(DcMotor.Direction.REVERSE);
-        driveMotors[2].setDirection(DcMotor.Direction.REVERSE);
-        driveMotors[3].setDirection(DcMotor.Direction.FORWARD);
+        driveMotors[0].setDirection(DcMotor.Direction.REVERSE);
+        driveMotors[1].setDirection(DcMotor.Direction.FORWARD);
 
     }
     private void init_liftMotor(String motorName){
@@ -173,24 +166,21 @@ public class Main extends LinearOpMode {
 
     private void steer_Drive_Motors(){
         //driving the robot
-        double speedX;
-        double speedY;
+        double speed;
 
         if(gamepad1.start){
-            speedX = gamepad1.left_stick_x * turboSpeed;
-            speedY = gamepad1.left_stick_y * turboSpeed;
+            speed = gamepad1.left_stick_y * turboSpeed;
         }
         else {
-            speedX = gamepad1.left_stick_x * maxSpeed;
-            speedY = gamepad1.left_stick_y * maxSpeed;
+            speed = gamepad1.left_stick_y * maxSpeed;
         }
 
         if(gamepad1.right_bumper) {
-            drive(speedX, speedY, Drive_direction.ROTATE_RIGHT,rotationMaxSpeed);
+            drive(speed, Drive_direction.ROTATE_RIGHT,rotationMaxSpeed);
         }else if(gamepad1.left_bumper){
-            drive(speedX, speedY, Drive_direction.ROTATE_LEFT,rotationMaxSpeed);
+            drive(speed, Drive_direction.ROTATE_LEFT,rotationMaxSpeed);
         }else{
-            drive(speedX, speedY);
+            drive(speed, Drive_direction.ROTATE_LEFT,0);
         }
     }
     private void lift_Motor(double speed){
