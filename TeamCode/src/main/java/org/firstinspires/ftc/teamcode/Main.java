@@ -42,13 +42,10 @@ public class Main extends LinearOpMode {
     double turboSpeed = 2600.0;
     double rotationMaxSpeed = 500.0;
     double liftSpeed = 1200.0;
-    int position = 0;
-    boolean flag = false;
-    boolean flag2 = false;
 
     DcMotorEx[] driveMotors = new DcMotorEx[2];
     DcMotorEx liftMotor;
-    Servo [] armServo = new Servo[2];
+    Servo wristServo;
     DistanceSensor distSensor;
 
     private void drive(double s, Drive_direction direction, double rotSpd){
@@ -67,20 +64,6 @@ public class Main extends LinearOpMode {
     public void testSth(DcMotorEx motor, double vel){
         motor.setVelocity(vel);
 
-    }
-
-    public boolean isClicked(Gamepad gmpd){
-        if (gmpd.y){
-            if(!flag){
-                flag = true;
-                return true;
-            } else{
-                return false;
-            }
-        }else{
-            flag = false;
-            return false;
-        }
     }
 
     private void drive(double x, double y)
@@ -144,18 +127,13 @@ public class Main extends LinearOpMode {
 
     }
 
-    private void init_arm_servos(String servoName, double init_pos_left, double init_pos_right){
+    private void init_wrist_servo(String servoName, double init_pos){
         //initializing arm servo
-        armServo[0] = hardwareMap.get(Servo.class ,servoName+"0");
-        armServo[0].scaleRange(Servo.MIN_POSITION, Servo.MAX_POSITION);
-        armServo[0].setDirection(Servo.Direction.FORWARD);
+        wristServo = hardwareMap.get(Servo.class ,servoName+"0");
+        wristServo.scaleRange(Servo.MIN_POSITION, Servo.MAX_POSITION);
+        wristServo.setDirection(Servo.Direction.FORWARD);
 
-        armServo[1] = hardwareMap.get(Servo.class ,servoName+"1");
-        armServo[1].scaleRange(Servo.MIN_POSITION, Servo.MAX_POSITION);
-        armServo[1].setDirection(Servo.Direction.REVERSE);
-
-        armServo[0].setPosition(init_pos_left);
-        armServo[1].setPosition(init_pos_right);
+        wristServo.setPosition(init_pos);
     }
 
     private void init_distance_sensor(String sensorName){
@@ -197,14 +175,13 @@ public class Main extends LinearOpMode {
 
     }
 
-    private void armServos(){
-        if(gamepad1.b){
-            armServo[0].setPosition(0.0);
-            armServo[1].setPosition(0.0);
+    private void wristServo(){
+        double pos = wristServo.getPosition();
+        if(gamepad1.x){
+            wristServo.setPosition(pos -= 0.01);
         }
-        else if(gamepad1.x){
-            armServo[0].setPosition(1.0);
-            armServo[1].setPosition(1.0);
+        else if(gamepad1.b){
+            wristServo.setPosition(pos += 0.01);
         }
     }
     private void show_distance()
@@ -215,9 +192,11 @@ public class Main extends LinearOpMode {
     //main function:
     @Override
     public void runOpMode() throws InterruptedException {
+        final long interval = 10;
+
         init_dcmotor("motorTest");
         init_liftMotor("liftMotor");
-        init_arm_servos("armServo", 1.0, 1.0);
+        init_wrist_servo("armServo", 1.0);
         init_distance_sensor("distanceTest");
         telemetry.addData("Status", "initialized");
         telemetry.update();
@@ -251,7 +230,8 @@ public class Main extends LinearOpMode {
             @Override
             public void run() {
                 while (true){
-                    armServos();
+                    sleep(interval);
+                    wristServo();
                 }
             }
         });
