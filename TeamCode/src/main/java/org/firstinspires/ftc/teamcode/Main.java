@@ -200,6 +200,7 @@ public class Main extends LinearOpMode {
         init_distance_sensor("distanceTest");
         telemetry.addData("Status", "initialized");
         telemetry.update();
+        waitForStart();
 
         Thread drive_thread = new Thread(new Runnable() {
             @Override
