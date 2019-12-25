@@ -19,7 +19,6 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
-import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
@@ -30,7 +29,6 @@ public class Main extends LinearOpMode {
     enum Drive_direction{
         ROTATE_LEFT,
         ROTATE_RIGHT,
-        STRAIGHT
     }
 
     enum Lift_motion{
@@ -198,6 +196,7 @@ public class Main extends LinearOpMode {
         init_liftMotor("liftMotor");
         init_wrist_servo("armServo", 1.0);
         init_distance_sensor("distanceTest");
+
         telemetry.addData("Status", "initialized");
         telemetry.update();
         waitForStart();
