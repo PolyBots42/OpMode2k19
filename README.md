@@ -1,4 +1,4 @@
-## NOTICE
+﻿## NOTICE
 
 This repository contains v5.0 of the FTC SDK.  No further versions will pushed to https://github.com/ftctechnh/ftc_app.
 
@@ -791,5 +791,8 @@ In this latest version of the FTC SDK (20150803_001) the following changes shoul
  * The hardware loop has been updated for better performance.
 
 
+
 T. Eng
 August 3, 2015
+
+
