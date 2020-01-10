@@ -201,6 +201,10 @@ public class Main extends LinearOpMode {
         telemetry.update();
         waitForStart();
 
+        drive(1000, Drive_direction.ROTATE_LEFT,0);
+        sleep(5000);
+        drive(0, Drive_direction.ROTATE_LEFT, 0);
+
         Thread drive_thread = new Thread(new Runnable() {
             @Override
             public void run() {
