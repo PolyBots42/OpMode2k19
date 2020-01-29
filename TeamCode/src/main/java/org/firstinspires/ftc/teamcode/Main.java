@@ -23,6 +23,8 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
+import java.time.Clock;
+
 @TeleOp(name="Test", group="Iterative Opmode")
 public class Main extends LinearOpMode {
 
@@ -201,9 +203,16 @@ public class Main extends LinearOpMode {
         telemetry.update();
         waitForStart();
 
-        drive(1000, Drive_direction.ROTATE_LEFT,0);
-        sleep(5000);
+        long startTime = System.currentTimeMillis();
+
+        while(System.currentTimeMillis() < startTime + 10000){
+            drive(1500, Drive_direction.ROTATE_LEFT,0);
+        }
+
+
         drive(0, Drive_direction.ROTATE_LEFT, 0);
+
+        //Manual period:
 
         Thread drive_thread = new Thread(new Runnable() {
             @Override
@@ -251,8 +260,8 @@ public class Main extends LinearOpMode {
         servo_thread.join();
 
         waitForStart();
-        while(true){
-
+        while(opModeIsActive()){
+            idle();
         }
     }
 }
