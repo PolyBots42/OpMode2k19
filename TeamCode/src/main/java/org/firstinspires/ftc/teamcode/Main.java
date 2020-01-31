@@ -1,4 +1,4 @@
-// @version 1.2
+// @version 1.3
 /*
  * @authors: Wojciech Boncela, Lukasz Gapiński, Mateusz Gapiński, Marceli Antosik, Jan Milczarek, Julia Sysdół, Witold Kardas
  *
@@ -9,6 +9,10 @@
 
     0 - left
     1 - right
+
+    * Velocity > 0 => drive backward
+    * Velocity < 0 => drive forward
+
 
  */
 
@@ -23,9 +27,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
-import java.time.Clock;
-
-@TeleOp(name="Test", group="Iterative Opmode")
+@TeleOp(name="OpMode2k19 1.3", group="Iterative Opmode")
 public class Main extends LinearOpMode {
 
     enum Drive_direction{
@@ -244,12 +246,16 @@ public class Main extends LinearOpMode {
         distance_thread.start();
         lift_thread.join();
 
-        while(System.currentTimeMillis() < startTime + 10000){
-            drive(1500, Drive_direction.ROTATE_LEFT,0);
+
+
+        while(distSensor.getDistance(DistanceUnit.CM) > 50.0d){
+            drive(-1500, Drive_direction.ROTATE_LEFT,0);
         }
 
 
         drive(0, Drive_direction.ROTATE_LEFT, 0);
+
+        startTime = System.currentTimeMillis();
 
         //Manual period:
         drive_thread.start();
