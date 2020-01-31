@@ -201,9 +201,48 @@ public class Main extends LinearOpMode {
 
         telemetry.addData("Status", "initialized");
         telemetry.update();
+
+        Thread drive_thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while(opModeIsActive())
+                    steer_Drive_Motors();
+            }
+        });
+
+        Thread lift_thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while(opModeIsActive())
+                    lift_Motor(liftSpeed);
+            }
+        });
+
+        Thread distance_thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while (opModeIsActive()){
+                    show_distance();
+                }
+            }
+        });
+
+        Thread servo_thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while (opModeIsActive()){
+                    sleep(interval);
+                    wristServo();
+                }
+            }
+        });
+
         waitForStart();
 
         long startTime = System.currentTimeMillis();
+
+        distance_thread.start();
+        lift_thread.join();
 
         while(System.currentTimeMillis() < startTime + 10000){
             drive(1500, Drive_direction.ROTATE_LEFT,0);
@@ -213,53 +252,14 @@ public class Main extends LinearOpMode {
         drive(0, Drive_direction.ROTATE_LEFT, 0);
 
         //Manual period:
-
-        Thread drive_thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                while(true)
-                    steer_Drive_Motors();
-            }
-        });
-
-        Thread lift_thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                while(true)
-                    lift_Motor(liftSpeed);
-            }
-        });
-
-        Thread distance_thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                while (true){
-                    show_distance();
-                }
-            }
-        });
-
-        Thread servo_thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                while (true){
-                    sleep(interval);
-                    wristServo();
-                }
-            }
-        });
-
         drive_thread.start();
         lift_thread.start();
-        distance_thread.start();
         servo_thread.start();
 
         drive_thread.join();
-        lift_thread.join();
         distance_thread.join();
         servo_thread.join();
 
-        waitForStart();
         while(opModeIsActive()){
             idle();
         }
