@@ -10,8 +10,8 @@
     0 - left
     1 - right
 
-    * Velocity > 0 => drive backward
-    * Velocity < 0 => drive forward
+    * Velocity < 0 => drive backward
+    * Velocity > 0 => drive forward
 
 
  */
@@ -51,6 +51,7 @@ public class Main extends LinearOpMode {
     DistanceSensor distSensor;
 
     private void drive(double s, Drive_direction direction, double rotSpd){
+        s = -s;
         switch (direction){
             case ROTATE_RIGHT:
                 driveMotors[0].setVelocity(s - rotSpd);
@@ -63,17 +64,9 @@ public class Main extends LinearOpMode {
         }
     }
 
-    public void testSth(DcMotorEx motor, double vel){
-        motor.setVelocity(vel);
-
-    }
-
-    private void drive(double x, double y)
-    {
-        driveMotors[0].setVelocity(x);
-        driveMotors[1].setVelocity(y);
-        driveMotors[2].setVelocity(x);
-        driveMotors[3].setVelocity(y);
+    private void drive(double s){
+        driveMotors[0].setVelocity(-s);
+        driveMotors[1].setVelocity(-s);
     }
 
     public void lift_motion(Lift_motion dir, double speed){
@@ -191,6 +184,31 @@ public class Main extends LinearOpMode {
         telemetry.addData("Distance: ", distSensor.getDistance(DistanceUnit.CM));
         telemetry.update();
     }
+
+    //to be repaired
+    private void turn_around()
+    {
+        drive(0, Drive_direction.ROTATE_RIGHT, 200);
+        double min_dis = 1000.0;
+        double dis;
+        boolean finding_min = true;
+        while(finding_min)
+        {
+            telemetry.addData("Distance: ", distSensor.getDistance(DistanceUnit.CM));
+            telemetry.update();
+            dis = distSensor.getDistance(DistanceUnit.CM);
+            if(dis < min_dis)
+                min_dis = dis;
+            else if(dis > min_dis + 1.0)
+            {
+                drive(0, Drive_direction.ROTATE_RIGHT, 0);
+                finding_min = false;
+            }
+            sleep(10);
+        }
+
+    }
+
     //main function:
     @Override
     public void runOpMode() throws InterruptedException {
@@ -241,21 +259,11 @@ public class Main extends LinearOpMode {
 
         waitForStart();
 
-        long startTime = System.currentTimeMillis();
+        /*
+        Autonomous:
+         */
 
-        distance_thread.start();
-        lift_thread.join();
-
-
-
-        while(distSensor.getDistance(DistanceUnit.CM) > 50.0d){
-            drive(-1500, Drive_direction.ROTATE_LEFT,0);
-        }
-
-
-        drive(0, Drive_direction.ROTATE_LEFT, 0);
-
-        startTime = System.currentTimeMillis();
+        turn_around();
 
         //Manual period:
         drive_thread.start();
