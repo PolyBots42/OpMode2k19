@@ -1,4 +1,4 @@
-// @version 1.3
+// @version 1.3.0
 /*
  * @authors: Wojciech Boncela, Lukasz Gapiński, Mateusz Gapiński, Marceli Antosik, Jan Milczarek, Julia Sysdół, Witold Kardas
  *
@@ -10,8 +10,8 @@
     0 - left
     1 - right
 
-    * Velocity < 0 => drive backward
-    * Velocity > 0 => drive forward
+    * Velocity > 0 => drive backward
+    * Velocity <   0 => drive forward
 
 
  */
@@ -27,7 +27,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
-@TeleOp(name="OpMode2k19 1.3", group="Iterative Opmode")
+@TeleOp(name="OpMode2k19 1.3.0", group="Iterative Opmode")
 public class Main extends LinearOpMode {
 
     enum Drive_direction{
@@ -42,34 +42,34 @@ public class Main extends LinearOpMode {
 
     double maxSpeed = 1000.0;
     double turboSpeed = 2600.0;
-    double rotationMaxSpeed = 500.0;
+    double rotationMaxSpeed = 600.0;
     double liftSpeed = 1200.0;
 
     DcMotorEx[] driveMotors = new DcMotorEx[2];
     DcMotorEx liftMotor;
     Servo wristServo;
+    Servo jawServo;
     DistanceSensor distSensor;
 
     private void drive(double s, Drive_direction direction, double rotSpd){
-        s = -s;
         switch (direction){
             case ROTATE_RIGHT:
-                driveMotors[0].setVelocity(s - rotSpd);
-                driveMotors[1].setVelocity(s + rotSpd);
-                break;
-            case ROTATE_LEFT:
                 driveMotors[0].setVelocity(s + rotSpd);
                 driveMotors[1].setVelocity(s - rotSpd);
+                break;
+            case ROTATE_LEFT:
+                driveMotors[0].setVelocity(s - rotSpd);
+                driveMotors[1].setVelocity(s + rotSpd);
                 break;
         }
     }
 
     private void drive(double s){
-        driveMotors[0].setVelocity(-s);
-        driveMotors[1].setVelocity(-s);
+        driveMotors[0].setVelocity(s);
+        driveMotors[1].setVelocity(s);
     }
 
-    public void lift_motion(Lift_motion dir, double speed){
+    public void liftMotion(Lift_motion dir, double speed){
         switch(dir) {
             case UP:
                 liftMotor.setVelocity(speed);
@@ -81,12 +81,12 @@ public class Main extends LinearOpMode {
         }
     }
 
-    public void set_lift_position(int position,double power){
+    public void setLiftPosition(int position, double power){
         liftMotor.setTargetPosition(position);
         liftMotor.setPower(power);
     }
 
-    public void hold_motor(DcMotorEx motor){
+    public void holdMotor(DcMotorEx motor){
         DcMotor.RunMode mode = motor.getMode();
 
         switch (mode){
@@ -101,7 +101,7 @@ public class Main extends LinearOpMode {
         }
     }
 
-    private void init_dcmotor(String motorName){
+    private void initDcmotor(String motorName){
         //DC Motors mapping
         for(int i = 0 ; i < 2 ; i++) {
             driveMotors[i] = hardwareMap.get(DcMotorEx.class, motorName + Integer.toString(i));
@@ -115,14 +115,14 @@ public class Main extends LinearOpMode {
         driveMotors[1].setDirection(DcMotor.Direction.FORWARD);
 
     }
-    private void init_liftMotor(String motorName){
+    private void initLiftMotor(String motorName){
         //initializing lift DC motor
         liftMotor = hardwareMap.get(DcMotorEx.class ,motorName);
         liftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
     }
 
-    private void init_wrist_servo(String servoName, double init_pos){
+    private void initWristServo(String servoName, double init_pos){
         //initializing arm servo
         wristServo = hardwareMap.get(Servo.class ,servoName+"0");
         wristServo.scaleRange(Servo.MIN_POSITION, Servo.MAX_POSITION);
@@ -131,13 +131,19 @@ public class Main extends LinearOpMode {
         wristServo.setPosition(init_pos);
     }
 
-    private void init_distance_sensor(String sensorName){
+    private void initJawServo(String servoName, double init_pos){
+        jawServo = hardwareMap.get(Servo.class, servoName + "0");
+        jawServo.scaleRange(Servo.MIN_POSITION, Servo.MAX_POSITION);
+        jawServo.setDirection(Servo.Direction.FORWARD);
+    }
+
+    private void initDistanceSensor(String sensorName){
         distSensor = hardwareMap.get(DistanceSensor.class, sensorName);
         telemetry.addData("Distance Sensor: ", "Distance Sensor initialize successfully.");
         telemetry.update();
     }
 
-    private void steer_Drive_Motors(){
+    private void steerDriveMotors(){
         //driving the robot
         double speed;
 
@@ -148,24 +154,20 @@ public class Main extends LinearOpMode {
             speed = gamepad1.left_stick_y * maxSpeed;
         }
 
-        if(gamepad1.right_bumper) {
-            drive(speed, Drive_direction.ROTATE_RIGHT,rotationMaxSpeed);
-        }else if(gamepad1.left_bumper){
-            drive(speed, Drive_direction.ROTATE_LEFT,rotationMaxSpeed);
-        }else{
-            drive(speed, Drive_direction.ROTATE_LEFT,0);
-        }
+        double rotSpeed = rotationMaxSpeed * gamepad1.right_stick_x;
+
+        drive(speed, Drive_direction.ROTATE_LEFT,rotSpeed);
     }
-    private void lift_Motor(double speed){
+    private void liftMotor(double speed){
         //controlling the lift
         if (gamepad1.y){
-            lift_motion(Lift_motion.UP,speed);
+            liftMotion(Lift_motion.UP,speed);
         }
         else if(gamepad1.a){
-            lift_motion(Lift_motion.DOWN, speed);
+            liftMotion(Lift_motion.DOWN, speed);
         }
         else{
-            hold_motor(liftMotor);
+            holdMotor(liftMotor);
         }
 
     }
@@ -179,7 +181,7 @@ public class Main extends LinearOpMode {
             wristServo.setPosition(pos += 0.01);
         }
     }
-    private void show_distance()
+    private void showDistance()
     {
         telemetry.addData("Distance: ", distSensor.getDistance(DistanceUnit.CM));
         telemetry.update();
@@ -194,9 +196,9 @@ public class Main extends LinearOpMode {
         boolean finding_min = true;
         while(finding_min)
         {
-            telemetry.addData("Distance: ", distSensor.getDistance(DistanceUnit.CM));
-            telemetry.update();
             dis = distSensor.getDistance(DistanceUnit.CM);
+            telemetry.addData("Distance: ", dis);
+            telemetry.update();
             if(dis < min_dis)
                 min_dis = dis;
             else if(dis > min_dis + 1.0)
@@ -214,10 +216,11 @@ public class Main extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         final long interval = 10;
 
-        init_dcmotor("motorTest");
-        init_liftMotor("liftMotor");
-        init_wrist_servo("armServo", 1.0);
-        init_distance_sensor("distanceTest");
+        initDcmotor("motorTest");
+        initLiftMotor("liftMotor");
+        initWristServo("armServo", 1.0);
+        initDistanceSensor("distanceTest");
+        initJawServo("jawServo", 1.0);
 
         telemetry.addData("Status", "initialized");
         telemetry.update();
@@ -226,7 +229,7 @@ public class Main extends LinearOpMode {
             @Override
             public void run() {
                 while(opModeIsActive())
-                    steer_Drive_Motors();
+                    steerDriveMotors();
             }
         });
 
@@ -234,7 +237,7 @@ public class Main extends LinearOpMode {
             @Override
             public void run() {
                 while(opModeIsActive())
-                    lift_Motor(liftSpeed);
+                    liftMotor(liftSpeed);
             }
         });
 
@@ -242,7 +245,7 @@ public class Main extends LinearOpMode {
             @Override
             public void run() {
                 while (opModeIsActive()){
-                    show_distance();
+                    showDistance();
                 }
             }
         });
@@ -263,7 +266,7 @@ public class Main extends LinearOpMode {
         Autonomous:
          */
 
-        turn_around();
+       // turn_around();
 
         //Manual period:
         drive_thread.start();
