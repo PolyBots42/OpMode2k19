@@ -1,4 +1,4 @@
-// @version 1.3.2
+// @version 1.3.3
 /*
  * @authors: Wojciech Boncela, Lukasz Gapiński, Mateusz Gapiński, Marceli Antosik, Jan Milczarek, Julia Sysdół, Witold Kardas
  *
@@ -27,7 +27,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
-@TeleOp(name="OpMode2k19 1.3.2", group="Iterative Opmode")
+@TeleOp(name="OpMode2k19 1.3.3", group="Iterative Opmode")
 public class Main extends LinearOpMode {
 
     enum Drive_direction{
@@ -121,7 +121,7 @@ public class Main extends LinearOpMode {
     }
     private void initLiftMotor(String motorName){
         //initializing lift DC motor
-        liftMotor = hardwareMap.get(DcMotorEx.class ,motorName);
+        liftMotor = hardwareMap.get(DcMotorEx.class ,motorName + "0");
         liftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
     }
