@@ -1,4 +1,4 @@
-// @version 1.3.3
+// @version 1.3.4
 /*
  * @authors: Wojciech Boncela, Lukasz Gapiński, Mateusz Gapiński, Marceli Antosik, Jan Milczarek, Julia Sysdół, Witold Kardas
  *
@@ -27,7 +27,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
-@TeleOp(name="OpMode2k19 1.3.3", group="Iterative Opmode")
+@TeleOp(name="OpMode2k19 1.3.4", group="Iterative Opmode")
 public class Main extends LinearOpMode {
 
     enum Drive_direction{
@@ -40,10 +40,16 @@ public class Main extends LinearOpMode {
         DOWN,
     }
 
+    enum String_motion{
+        FORWARD,
+        BACKWARD,
+    }
+
     double maxSpeed = 1000.0;
     double turboSpeed = 2600.0;
     double rotationMaxSpeed = 600.0;
     double liftSpeed = 1200.0;
+    double stringSpeed = 600.0;
     double wristDeltaPos = 0.01;
     double jawDeltaPos = 0.01;
     long wristServoInterval = 10;
@@ -51,6 +57,7 @@ public class Main extends LinearOpMode {
 
     DcMotorEx[] driveMotors = new DcMotorEx[2];
     DcMotorEx liftMotor;
+    DcMotorEx stringMotor;
     Servo wristServo;
     Servo jawServo;
     DistanceSensor distSensor;
@@ -81,6 +88,18 @@ public class Main extends LinearOpMode {
 
             case DOWN:
                 liftMotor.setVelocity(-speed);
+                break;
+        }
+    }
+
+    public void stringMotion(String_motion dir, double speed){
+        switch(dir) {
+            case FORWARD:
+                stringMotor.setVelocity(speed);
+                break;
+
+            case BACKWARD:
+                stringMotor.setVelocity(-speed);
                 break;
         }
     }
@@ -123,6 +142,13 @@ public class Main extends LinearOpMode {
         //initializing lift DC motor
         liftMotor = hardwareMap.get(DcMotorEx.class ,motorName + "0");
         liftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+    }
+
+    private void initStringMotor(String motorName){
+        //initializing string DC motor
+        stringMotor = hardwareMap.get(DcMotorEx.class ,motorName + "0");
+        stringMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
     }
 
@@ -178,6 +204,20 @@ public class Main extends LinearOpMode {
 
     }
 
+    private void stringMotor(double speed){
+        //controlling the string
+        if (gamepad1.dpad_right){
+            stringMotion(String_motion.FORWARD,speed);
+        }
+        else if(gamepad1.dpad_left){
+            stringMotion(String_motion.BACKWARD, speed);
+        }
+        else{
+            holdMotor(stringMotor);
+        }
+
+    }
+
     private void moveServo(Servo servo, long interval, double deltaPos){
         double pos = servo.getPosition();
         sleep(interval);
@@ -216,10 +256,10 @@ public class Main extends LinearOpMode {
     //main function:
     @Override
     public void runOpMode() throws InterruptedException {
-        final long interval = 10;
 
         initDcmotor("motorTest");
         initLiftMotor("liftMotor");
+        initStringMotor("stringMotor");
         initWristServo("armServo", 1.0);
         initDistanceSensor("distanceTest");
         initJawServo("jawServo", 1.0);
@@ -240,6 +280,14 @@ public class Main extends LinearOpMode {
             public void run() {
                 while(opModeIsActive())
                     liftMotor(liftSpeed);
+            }
+        });
+
+        Thread string_thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while(opModeIsActive())
+                    liftMotor(stringSpeed);
             }
         });
 
@@ -293,11 +341,13 @@ public class Main extends LinearOpMode {
         //Manual period:
         drive_thread.start();
         lift_thread.start();
+        string_thread.start();
         wristServoThread.start();
         jawServoThread.start();
 
         drive_thread.join();
-        distance_thread.join();
+        lift_thread.join();
+        string_thread.join();
         wristServoThread.join();
         jawServoThread.join();
 
