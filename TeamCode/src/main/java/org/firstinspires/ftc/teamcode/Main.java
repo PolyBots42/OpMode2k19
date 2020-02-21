@@ -44,6 +44,10 @@ public class Main extends LinearOpMode {
     double turboSpeed = 2600.0;
     double rotationMaxSpeed = 600.0;
     double liftSpeed = 1200.0;
+    double wristDeltaPos = 0.01;
+    double jawDeltaPos = 0.01;
+    long wristServoInterval = 10;
+    long jawServoInterval = 10;
 
     DcMotorEx[] driveMotors = new DcMotorEx[2];
     DcMotorEx liftMotor;
@@ -162,10 +166,10 @@ public class Main extends LinearOpMode {
     }
     private void liftMotor(double speed){
         //controlling the lift
-        if (gamepad1.y){
+        if (gamepad1.dpad_up){
             liftMotion(Lift_motion.UP,speed);
         }
-        else if(gamepad1.a){
+        else if(gamepad1.dpad_down){
             liftMotion(Lift_motion.DOWN, speed);
         }
         else{
@@ -174,14 +178,10 @@ public class Main extends LinearOpMode {
 
     }
 
-    private void moveServo(Servo servo){
+    private void moveServo(Servo servo, long interval, double deltaPos){
         double pos = servo.getPosition();
-        if(gamepad1.x){
-            servo.setPosition(pos -= 0.01);
-        }
-        else if(gamepad1.b){
-            servo.setPosition(pos += 0.01);
-        }
+        sleep(interval);
+        servo.setPosition(pos += deltaPos);
     }
     private void showDistance()
     {
@@ -256,8 +256,28 @@ public class Main extends LinearOpMode {
             @Override
             public void run() {
                 while (opModeIsActive()){
-                    sleep(interval);
-                    moveServo(wristServo);
+                    if(gamepad1.b){
+                        moveServo(wristServo, wristServoInterval, wristDeltaPos);
+                    }
+                    else if(gamepad1.x){
+                        moveServo(wristServo, wristServoInterval, -wristDeltaPos);
+                    }
+
+                }
+            }
+        });
+
+        Thread jawServoThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while (opModeIsActive()){
+                    if(gamepad1.y){
+                        moveServo(jawServo, jawServoInterval, jawDeltaPos);
+                    }
+                    else if(gamepad1.a){
+                        moveServo(jawServo, jawServoInterval, -jawDeltaPos);
+                    }
+
                 }
             }
         });
@@ -274,10 +294,12 @@ public class Main extends LinearOpMode {
         drive_thread.start();
         lift_thread.start();
         wristServoThread.start();
+        jawServoThread.start();
 
         drive_thread.join();
         distance_thread.join();
         wristServoThread.join();
+        jawServoThread.join();
 
         while(opModeIsActive()){
             idle();
