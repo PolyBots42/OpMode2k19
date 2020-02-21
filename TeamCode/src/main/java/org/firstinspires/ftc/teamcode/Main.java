@@ -1,4 +1,4 @@
-// @version 1.3.0
+// @version 1.3.2
 /*
  * @authors: Wojciech Boncela, Lukasz Gapiński, Mateusz Gapiński, Marceli Antosik, Jan Milczarek, Julia Sysdół, Witold Kardas
  *
@@ -27,7 +27,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
-@TeleOp(name="OpMode2k19 1.3.0", group="Iterative Opmode")
+@TeleOp(name="OpMode2k19 1.3.2", group="Iterative Opmode")
 public class Main extends LinearOpMode {
 
     enum Drive_direction{
@@ -135,6 +135,8 @@ public class Main extends LinearOpMode {
         jawServo = hardwareMap.get(Servo.class, servoName + "0");
         jawServo.scaleRange(Servo.MIN_POSITION, Servo.MAX_POSITION);
         jawServo.setDirection(Servo.Direction.FORWARD);
+
+        jawServo.setPosition(init_pos);
     }
 
     private void initDistanceSensor(String sensorName){
@@ -172,13 +174,13 @@ public class Main extends LinearOpMode {
 
     }
 
-    private void wristServo(){
-        double pos = wristServo.getPosition();
+    private void moveServo(Servo servo){
+        double pos = servo.getPosition();
         if(gamepad1.x){
-            wristServo.setPosition(pos -= 0.01);
+            servo.setPosition(pos -= 0.01);
         }
         else if(gamepad1.b){
-            wristServo.setPosition(pos += 0.01);
+            servo.setPosition(pos += 0.01);
         }
     }
     private void showDistance()
@@ -250,12 +252,12 @@ public class Main extends LinearOpMode {
             }
         });
 
-        Thread servo_thread = new Thread(new Runnable() {
+        Thread wristServoThread = new Thread(new Runnable() {
             @Override
             public void run() {
                 while (opModeIsActive()){
                     sleep(interval);
-                    wristServo();
+                    moveServo(wristServo);
                 }
             }
         });
@@ -271,11 +273,11 @@ public class Main extends LinearOpMode {
         //Manual period:
         drive_thread.start();
         lift_thread.start();
-        servo_thread.start();
+        wristServoThread.start();
 
         drive_thread.join();
         distance_thread.join();
-        servo_thread.join();
+        wristServoThread.join();
 
         while(opModeIsActive()){
             idle();
