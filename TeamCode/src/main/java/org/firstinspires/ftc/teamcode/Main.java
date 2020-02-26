@@ -75,10 +75,12 @@ public class Main extends LinearOpMode {
         }
     }
 
+    /*
     private void drive(double s){
         driveMotors[0].setVelocity(s);
         driveMotors[1].setVelocity(s);
     }
+    */
 
     public void liftMotion(Lift_motion dir, double speed){
         switch(dir) {
@@ -149,7 +151,6 @@ public class Main extends LinearOpMode {
         //initializing string DC motor
         stringMotor = hardwareMap.get(DcMotorEx.class ,motorName + "0");
         stringMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
     }
 
     private void initWristServo(String servoName, double init_pos){
@@ -190,6 +191,7 @@ public class Main extends LinearOpMode {
 
         drive(speed, Drive_direction.ROTATE_LEFT,rotSpeed);
     }
+
     private void liftMotor(double speed){
         //controlling the lift
         if (gamepad1.dpad_up){
