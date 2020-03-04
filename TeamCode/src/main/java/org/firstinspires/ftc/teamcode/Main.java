@@ -1,7 +1,7 @@
-// @version 1.3.4
+// @version 1.3.5
 /*
- * @authors: Wojciech Boncela, Lukasz Gapiński, Mateusz Gapiński, Marceli Antosik, Jan Milczarek, Julia Sysdół, Witold Kardas
- *
+ * @authors: Wojciech Boncela, Lukasz Gapiński, Mateusz Gapiński, Marceli Antosik, Jan Milczarek, Julia Sysdół,
+ *Brunon Bojków
  *
  *
  *
@@ -126,18 +126,35 @@ public class Main extends LinearOpMode {
         }
     }
 
-    private void initDcmotor(String motorName){
+    private void initDcmotor(String motorName, DcMotor.RunMode mode){
         //DC Motors mapping
+
         for(int i = 0 ; i < 2 ; i++) {
             driveMotors[i] = hardwareMap.get(DcMotorEx.class, motorName + Integer.toString(i));
         }
-        //Set motors to rotate at set speed
-        for (int i=0; i<2;i++){
-            driveMotors[i].setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        if(mode == DcMotor.RunMode.RUN_TO_POSITION){
+            for (int i=0; i<2;i++){
+                driveMotors[i].setTargetPosition(0);
+            }
         }
 
-        driveMotors[0].setDirection(DcMotor.Direction.REVERSE);
-        driveMotors[1].setDirection(DcMotor.Direction.FORWARD);
+        //Set motors to rotate at set speed
+        for (int i=0; i<2;i++){
+            driveMotors[i].setMode(mode);
+        }
+
+        for (int i=0; i<2;i++){
+            driveMotors[i].setPower(0.75);
+        }
+
+        while(driveMotors[0].isBusy());
+
+
+        if(mode == DcMotor.RunMode.RUN_USING_ENCODER){
+            driveMotors[0].setDirection(DcMotor.Direction.REVERSE);
+            driveMotors[1].setDirection(DcMotor.Direction.FORWARD);
+        }
+
 
     }
     private void initLiftMotor(String motorName){
@@ -259,7 +276,9 @@ public class Main extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
 
-        initDcmotor("motorTest");
+        waitForStart();
+
+        initDcmotor("motorTest", DcMotor.RunMode.RUN_TO_POSITION);
         initLiftMotor("liftMotor");
         initStringMotor("stringMotor");
         initWristServo("armServo", 1.0);
@@ -268,6 +287,21 @@ public class Main extends LinearOpMode {
 
         telemetry.addData("Status", "initialized");
         telemetry.update();
+
+        //Test
+
+        driveMotors[0].setTargetPosition(0);
+        driveMotors[1].setTargetPosition(0);
+
+        while(driveMotors[0].isBusy());
+
+        driveMotors[0].setTargetPosition(100);
+        driveMotors[1].setTargetPosition(-100);
+
+        sleep(500);
+
+        initDcmotor("motorTest", DcMotor.RunMode.RUN_USING_ENCODER);
+
 
         Thread drive_thread = new Thread(new Runnable() {
             @Override
@@ -327,12 +361,9 @@ public class Main extends LinearOpMode {
                     else if(gamepad1.a){
                         moveServo(jawServo, jawServoInterval, -jawDeltaPos);
                     }
-
                 }
             }
         });
-
-        waitForStart();
 
         /*
         Autonomous:
