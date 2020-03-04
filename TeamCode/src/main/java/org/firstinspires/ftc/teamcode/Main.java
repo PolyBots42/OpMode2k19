@@ -1,7 +1,7 @@
-// @version 1.3.5
+// @version 1.3.6
 /*
  * @authors: Wojciech Boncela, Lukasz Gapiński, Mateusz Gapiński, Marceli Antosik, Jan Milczarek, Julia Sysdół,
- *Brunon Bojków
+ *
  *
  *
  *
@@ -27,7 +27,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
-@TeleOp(name="OpMode2k19 1.3.4", group="Iterative Opmode")
+@TeleOp(name="OpMode2k19 1.3.6", group="Iterative Opmode")
 public class Main extends LinearOpMode {
 
     enum Drive_direction{
@@ -54,6 +54,8 @@ public class Main extends LinearOpMode {
     double jawDeltaPos = 0.01;
     long wristServoInterval = 10;
     long jawServoInterval = 10;
+
+    int oneRotation = 575;
 
     DcMotorEx[] driveMotors = new DcMotorEx[2];
     DcMotorEx liftMotor;
@@ -85,11 +87,11 @@ public class Main extends LinearOpMode {
     public void liftMotion(Lift_motion dir, double speed){
         switch(dir) {
             case UP:
-                liftMotor.setVelocity(speed);
+                liftMotor.setVelocity(-speed);
                 break;
 
             case DOWN:
-                liftMotor.setVelocity(-speed);
+                liftMotor.setVelocity(speed);
                 break;
         }
     }
@@ -134,17 +136,14 @@ public class Main extends LinearOpMode {
         }
         if(mode == DcMotor.RunMode.RUN_TO_POSITION){
             for (int i=0; i<2;i++){
-                driveMotors[i].setTargetPosition(0);
+                driveMotors[i].setTargetPosition(driveMotors[i].getCurrentPosition());
+                driveMotors[i].setPower(0.5);
             }
         }
 
         //Set motors to rotate at set speed
         for (int i=0; i<2;i++){
             driveMotors[i].setMode(mode);
-        }
-
-        for (int i=0; i<2;i++){
-            driveMotors[i].setPower(0.75);
         }
 
         while(driveMotors[0].isBusy());
@@ -220,7 +219,6 @@ public class Main extends LinearOpMode {
         else{
             holdMotor(liftMotor);
         }
-
     }
 
     private void stringMotor(double speed){
@@ -234,7 +232,6 @@ public class Main extends LinearOpMode {
         else{
             holdMotor(stringMotor);
         }
-
     }
 
     private void moveServo(Servo servo, long interval, double deltaPos){
@@ -275,9 +272,6 @@ public class Main extends LinearOpMode {
     //main function:
     @Override
     public void runOpMode() throws InterruptedException {
-
-        waitForStart();
-
         initDcmotor("motorTest", DcMotor.RunMode.RUN_TO_POSITION);
         initLiftMotor("liftMotor");
         initStringMotor("stringMotor");
@@ -288,20 +282,27 @@ public class Main extends LinearOpMode {
         telemetry.addData("Status", "initialized");
         telemetry.update();
 
-        //Test
+        waitForStart();
 
-        driveMotors[0].setTargetPosition(0);
-        driveMotors[1].setTargetPosition(0);
+        //Test
 
         while(driveMotors[0].isBusy());
 
-        driveMotors[0].setTargetPosition(100);
-        driveMotors[1].setTargetPosition(-100);
+        driveMotors[0].setTargetPosition(driveMotors[0].getCurrentPosition() + oneRotation);
+        driveMotors[1].setTargetPosition(driveMotors[1].getCurrentPosition() - oneRotation);
+
+        while(driveMotors[0].isBusy());
+
+        holdMotor(driveMotors[0]);
+        holdMotor(driveMotors[1]);
 
         sleep(500);
 
-        initDcmotor("motorTest", DcMotor.RunMode.RUN_USING_ENCODER);
-
+        for(int i = 0 ; i < 2 ; i++) {
+            driveMotors[i] = hardwareMap.get(DcMotorEx.class, "motorTest" + Integer.toString(i));
+        }
+        driveMotors[0].setDirection(DcMotor.Direction.REVERSE);
+        driveMotors[1].setDirection(DcMotor.Direction.FORWARD);
 
         Thread drive_thread = new Thread(new Runnable() {
             @Override
